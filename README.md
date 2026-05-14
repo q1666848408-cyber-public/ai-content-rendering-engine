@@ -1,86 +1,69 @@
-<div align="center">
+# AI-Content-Rendering-Engine
 
-# 🎨 AI Content Rendering Engine
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 
-[![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org)
-[![Remotion](https://img.shields.io/badge/Remotion-Video-FF6E00?style=flat-square)](https://remotion.dev)
-[![Puppeteer](https://img.shields.io/badge/Puppeteer-Graphic-40B5A4?style=flat-square&logo=puppeteer&logoColor=white)](https://pptr.dev)
-[![Bun](https://img.shields.io/badge/Bun-Runtime-000000?style=flat-square&logo=bun&logoColor=white)](https://bun.sh)
+> **Showcase** — ~15% skeleton. Core implementation not included.
 
-**Dual-engine content renderer — graphic (Puppeteer + HTML templates) and video (Next.js + Remotion) in one repo**
+Dual-engine content renderer. The graphic engine converts HTML templates to 1080x1440 PNG. The video engine renders 60 fps 1080x1920 MP4 using React and Remotion.
 
-> ⚠️ **Showcase Only** — ~15% skeleton. Template library, business logic & deploy scripts not included.
+## Stack
 
-</div>
+- Node.js, TypeScript
+- Puppeteer (graphic engine)
+- Next.js 14, Remotion (video engine)
 
----
+## Engines
 
-## ✨ Overview
+### Graphic Engine
 
-A unified rendering layer that takes structured content (JSON / Markdown) and outputs either **1080×1440 graphic cards** or **1080×1920 60-fps videos**. The two engines share a templating mindset (templates as code) but use different runtimes optimized for their output format.
+Renders HTML/CSS templates to static images via Puppeteer headless Chrome.
 
----
+- Output: 1080x1440 PNG
+- 4 themes (light, dark, brand, minimal)
+- 22 component types (quote card, data chart, thread post, etc.)
 
-## 🏗️ Architecture
+### Video Engine
+
+Programmatic video composition with React components timed to a frame timeline.
+
+- Output: 1080x1920 MP4 at 60 fps
+- 5 portrait templates (product showcase, news summary, tutorial, listicle, quote reel)
+
+## Usage
+
+```bash
+npm install
+
+# Render a graphic
+npx ts-node graphic/render.ts   --template quote-card   --theme dark   --data '{"text":"...", "author":"..."}'   --out output.png
+
+# Render a video
+npx remotion render video/templates/ProductShowcase   --props '{"title":"...","clips":[...]}'   --output output.mp4
+```
+
+## Structure
 
 ```
-                Structured Content (JSON)
-                          │
-              ┌───────────┴──────────────┐
-              ▼                          ▼
-    ┌──────────────────┐       ┌──────────────────┐
-    │  Graphic Engine  │       │  Video Engine    │
-    │  graphic/        │       │  src/remotion/   │
-    │                  │       │                  │
-    │  HTML templates  │       │  React templates │
-    │  + Puppeteer     │       │  + Remotion      │
-    └────────┬─────────┘       └────────┬─────────┘
-             │                          │
-             ▼                          ▼
-       PNG cards                 MP4 (1080×1920)
-       1080×1440 ×N              60 FPS
-```
-
----
-
-## 📁 Structure
-
-```
-ai-content-rendering-engine/
+AI-Content-Rendering-Engine/
 ├── graphic/
-│   ├── screenshot.js            # Puppeteer renderer
-│   └── templates/example.html
-├── src/
-│   └── remotion/
-│       ├── Root.tsx             # Remotion entrypoint
-│       └── templates/NewsVideo.tsx
+│   ├── templates/     # 22 HTML/CSS component templates
+│   ├── themes/        # 4 theme definitions
+│   └── render.ts      # Puppeteer render entry
+├── video/
+│   ├── templates/     # 5 Remotion composition templates
+│   └── Root.tsx       # Remotion root
+├── shared/
+│   └── types.ts
 └── package.json
 ```
 
----
+## API
 
-## 🔧 Tech Stack
-
-| Engine | Stack |
-|---|---|
-| **Graphic** | HTML / CSS · Puppeteer · Node.js |
-| **Video** | Next.js · Remotion · React · TypeScript |
-| Runtime | Bun (preferred) / Node.js |
-
----
-
-## 🚀 Quick Start
+Both engines expose a REST endpoint when running as a service:
 
 ```bash
-bun install
-# Graphic:
-cd graphic && node screenshot.js templates/example.html
-# Video:
-bun remotion studio
+node server.js   # listens on :3000
+
+POST /render/graphic  { template, theme, data }  → PNG
+POST /render/video    { template, props }         → MP4
 ```
-
----
-
-<div align="center">
-<sub>Showcase version · Production templates not included · For portfolio reference only</sub>
-</div>
